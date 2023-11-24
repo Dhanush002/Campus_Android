@@ -7,21 +7,29 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class Login extends AppCompatActivity {
-    Button button;
-    ImageButton imageButton;
+    Button registerButton, loginButton;
+    ImageButton adminLoginButton;
+    EditText loginusername, loginpassword;
+    MyDatabaseHelper myDB;
 
-    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        button = findViewById(R.id.registerpg_btn);
+        registerButton = findViewById(R.id.registerpg_btn);
+        adminLoginButton = findViewById(R.id.imageButton);
+        loginButton = findViewById(R.id.login_btn);
+        loginusername = findViewById(R.id.loginusername);
+        loginpassword = findViewById(R.id.loginpassword);
+        myDB = new MyDatabaseHelper(this);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Login.this, register.class);
@@ -29,8 +37,7 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        imageButton = findViewById(R.id.imageButton);
-        imageButton.setOnClickListener(new View.OnClickListener() {
+        adminLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Login.this, admin_login.class);
@@ -38,15 +45,24 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        button = findViewById(R.id.login_btn);
-
-        button.setOnClickListener(new View.OnClickListener() {
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Login.this, user_homepage.class);
-                startActivity(intent);
+                String username = loginusername.getText().toString().trim();
+                String password = loginpassword.getText().toString().trim();
+
+                if (validateLogin(username, password)) {
+                    Intent intent = new Intent(Login.this, ViewFlower.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(Login.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
 
+    private boolean validateLogin(String username, String password) {
+        // Check the user table for the provided username and password
+        return myDB.validateUser(username, password);
     }
 }
